@@ -78,12 +78,8 @@
           "name": "groups_user_id_users_id_fk",
           "tableFrom": "groups",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -170,12 +166,8 @@
           "name": "note_group_links_note_id_notes_id_fk",
           "tableFrom": "note_group_links",
           "tableTo": "notes",
-          "columnsFrom": [
-            "note_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["note_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -183,12 +175,8 @@
           "name": "note_group_links_group_id_groups_id_fk",
           "tableFrom": "note_group_links",
           "tableTo": "groups",
-          "columnsFrom": [
-            "group_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["group_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -196,10 +184,7 @@
       "compositePrimaryKeys": {
         "note_group_links_note_id_group_id_pk": {
           "name": "note_group_links_note_id_group_id_pk",
-          "columns": [
-            "note_id",
-            "group_id"
-          ]
+          "columns": ["note_id", "group_id"]
         }
       },
       "uniqueConstraints": {},
@@ -297,12 +282,8 @@
           "name": "notes_user_id_users_id_fk",
           "tableFrom": "notes",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -386,9 +367,7 @@
         "users_auth_id_unique": {
           "name": "users_auth_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "auth_id"
-          ]
+          "columns": ["auth_id"]
         }
       },
       "policies": {},
@@ -400,19 +379,12 @@
     "public.status": {
       "name": "status",
       "schema": "public",
-      "values": [
-        "active",
-        "inactive",
-        "deleted"
-      ]
+      "values": ["active", "inactive", "deleted"]
     },
     "public.user_type": {
       "name": "user_type",
       "schema": "public",
-      "values": [
-        "user",
-        "guest"
-      ]
+      "values": ["user", "guest"]
     }
   },
   "schemas": {},

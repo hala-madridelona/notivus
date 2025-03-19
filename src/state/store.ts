@@ -1,19 +1,19 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface Note {
-    id: string;
-    title: string;
-    content: string;
-    createdAt: Date;
-    updatedAt: Date;
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface Store {
-    notes: Note[]
+  notes: Note[];
 }
 
 const useStore = create<Store>(() => ({
-    notes: [],
-}))
+  notes: [],
+}));
 
 export default useStore;

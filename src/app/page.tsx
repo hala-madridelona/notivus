@@ -1,3 +1,9 @@
+import User from '@/components/auth/user';
+
 export default function Home() {
-  return <div>Hello from NextJs</div>;
+  return (
+    <div>
+      <User />
+    </div>
+  );
 }

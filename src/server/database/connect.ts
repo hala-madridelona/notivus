@@ -24,7 +24,7 @@ export const getDbClient = () => {
     client = loadLocalClient();
   } else {
     // TODO: Add remote client connection
-    throw new Error('Database client not found');
+    // throw new Error('Database client not found');
   }
 
   return client;

@@ -29,23 +29,43 @@ CREATE TABLE "notes" (
 	"status" "status" DEFAULT 'active'
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
+CREATE TABLE "account" (
+	"userId" uuid NOT NULL,
+	"type" text NOT NULL,
+	"provider" text NOT NULL,
+	"providerAccountId" text NOT NULL,
+	"refresh_token" text,
+	"access_token" text,
+	"expires_at" integer,
+	"token_type" text,
+	"scope" text,
+	"id_token" text,
+	"session_state" text
+);
+--> statement-breakpoint
+CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"auth_id" varchar(50) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"profile_picture" varchar(255),
-	"additional_info" jsonb,
-	"user_type" "user_type" DEFAULT 'user',
+	"email" varchar(255),
+	"email_verified" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"status" "status" DEFAULT 'active',
-	CONSTRAINT "users_auth_id_unique" UNIQUE("auth_id")
+	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-ALTER TABLE "groups" ADD CONSTRAINT "groups_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+CREATE TABLE "verificationToken" (
+	"identifier" varchar(255) NOT NULL,
+	"token" varchar(255) NOT NULL,
+	"expires" timestamp NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "groups" ADD CONSTRAINT "groups_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "note_group_links" ADD CONSTRAINT "note_group_links_note_id_notes_id_fk" FOREIGN KEY ("note_id") REFERENCES "public"."notes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "note_group_links" ADD CONSTRAINT "note_group_links_group_id_groups_id_fk" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notes" ADD CONSTRAINT "notes_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "notes" ADD CONSTRAINT "notes_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "groups_user_id_index" ON "groups" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "note_group_link_note_id_index" ON "note_group_links" USING btree ("note_id");--> statement-breakpoint
 CREATE INDEX "note_group_link_group_id_index" ON "note_group_links" USING btree ("group_id");--> statement-breakpoint

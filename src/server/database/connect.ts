@@ -18,13 +18,13 @@ const loadLocalClient = () => {
   return drizzle(client);
 };
 
-export const getDbClient = async () => {
+export const getDbClient = () => {
   if (client) return client;
   if (process.env.APP_ENV === 'local') {
     client = loadLocalClient();
   } else {
     // TODO: Add remote client connection
-    throw new Error('Database client not found');
+    // throw new Error('Database client not found');
   }
 
   return client;

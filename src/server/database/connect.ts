@@ -18,7 +18,7 @@ const loadLocalClient = () => {
   return drizzle(client);
 };
 
-export const getDbClient = async () => {
+export const getDbClient = () => {
   if (client) return client;
   if (process.env.APP_ENV === 'local') {
     client = loadLocalClient();

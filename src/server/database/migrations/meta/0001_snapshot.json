@@ -1,6 +1,6 @@
 {
-  "id": "6c5dd68c-39a3-4fcd-9f99-20dc10c52bd7",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "c6e578b9-fd86-4226-825e-1e284d616d69",
+  "prevId": "6c5dd68c-39a3-4fcd-9f99-20dc10c52bd7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -383,6 +383,38 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.otp": {
+      "name": "otp",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "mobile": {
+          "name": "mobile",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.user": {
       "name": "user",
       "schema": "",
@@ -402,6 +434,12 @@
         },
         "profile_picture": {
           "name": "profile_picture",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "mobile": {
+          "name": "mobile",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false

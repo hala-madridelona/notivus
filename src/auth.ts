@@ -6,7 +6,7 @@ import Github from 'next-auth/providers/github';
 
 import { getDbClient } from './server/database/connect';
 import { Account, User, VerificationToken } from './server/database/models/users';
-
+import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 const db = getDbClient();
 
 declare module 'next-auth' {
@@ -29,7 +29,7 @@ declare module 'next-auth' {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: DrizzleAdapter(db, {
+  adapter: DrizzleAdapter(db as PostgresJsDatabase, {
     usersTable: User,
     accountsTable: Account,
     verificationTokensTable: VerificationToken,

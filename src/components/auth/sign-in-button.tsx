@@ -8,7 +8,7 @@ export function SignIn() {
         await signIn();
       }}
     >
-      <button type="submit">Sign in</button>
+      <button type="submit">Sign in with Github</button>
     </form>
   );
 }

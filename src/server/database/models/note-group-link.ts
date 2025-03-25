@@ -1,16 +1,16 @@
 import { uuid, pgTable, timestamp, primaryKey, index } from 'drizzle-orm/pg-core';
-import { Notes } from './notes';
-import { Groups } from './groups';
+import { Note } from './notes';
+import { Group } from './groups';
 import { GenericTableStatusEnum } from './common';
 
-export const NoteGroupLinks = pgTable(
+export const NoteGroupLink = pgTable(
   'note_group_links',
   {
     noteId: uuid('note_id')
-      .references(() => Notes.id)
+      .references(() => Note.id)
       .notNull(),
     groupId: uuid('group_id')
-      .references(() => Groups.id)
+      .references(() => Group.id)
       .notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),

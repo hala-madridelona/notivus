@@ -1,15 +1,15 @@
 import { uuid, text, timestamp, varchar, pgTable, index } from 'drizzle-orm/pg-core';
-import { Users } from './users';
+import { User } from './users';
 import { GenericTableStatusEnum } from './common';
 
-export const Notes = pgTable(
+export const Note = pgTable(
   'notes',
   {
     id: uuid('id').defaultRandom().primaryKey(),
     title: varchar('title', { length: 255 }).default('New Note'),
     content: text('content'),
     userId: uuid('user_id')
-      .references(() => Users.id)
+      .references(() => User.id)
       .notNull(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),

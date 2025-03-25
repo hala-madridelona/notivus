@@ -1,6 +1,13 @@
 import NextAuth, { type DefaultSession } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { DrizzleAdapter } from '@auth/drizzle-adapter';
 
 import Github from 'next-auth/providers/github';
+
+import { getDbClient } from './server/database/connect';
+import { Account, User, VerificationToken } from './server/database/models/users';
+
+const db = getDbClient();
 
 declare module 'next-auth' {
   /**
@@ -22,19 +29,43 @@ declare module 'next-auth' {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Github],
+  adapter: DrizzleAdapter(db, {
+    usersTable: User,
+    accountsTable: Account,
+    verificationTokensTable: VerificationToken,
+  }),
+  providers: [
+    Github,
+    Credentials({
+      id: 'mobile-otp',
+      credentials: {},
+      authorize: async (credentials) => {
+        const { phoneNumber } = credentials as Record<string, string>;
+        // TODO: Fetch user from database
+        return { id: '1', name: 'Shashank Shekhar', mobile: phoneNumber };
+      },
+    }),
+  ],
+
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       // Persist the OAuth access_token to the token right after signin
       if (account) {
         token.accessToken = account.access_token;
+      }
+      if (user) {
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       // Send properties to the client, like an access_token from a provider.
       session.accessToken = token.accessToken as string;
+      session.user.id = token.id as string;
       return session;
     },
+  },
+  session: {
+    strategy: 'jwt',
   },
 });

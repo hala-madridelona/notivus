@@ -7,6 +7,9 @@ import Github from 'next-auth/providers/github';
 import { getDbClient } from './server/database/connect';
 import { Account, User, VerificationToken } from './server/database/models/users';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { fetchUserOrCreateNewUser } from './server/business/user';
+import { INDIA_MOBILE_EXTENSION } from './utils/constants';
+import { getUserDataFromJwtUser } from './server/auth/utils';
 const db = getDbClient();
 
 declare module 'next-auth' {
@@ -40,9 +43,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       id: 'mobile-otp',
       credentials: {},
       authorize: async (credentials) => {
-        const { phoneNumber } = credentials as Record<string, string>;
-        // TODO: Fetch user from database
-        return { id: '1', name: 'Shashank Shekhar', mobile: phoneNumber };
+        const { mobileNumber } = credentials as Record<string, string>;
+        const user = await fetchUserOrCreateNewUser({
+          mobile: `${INDIA_MOBILE_EXTENSION}${mobileNumber}`,
+        });
+        return user;
       },
     }),
   ],
@@ -54,14 +59,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.accessToken = account.access_token;
       }
       if (user) {
-        token.id = user.id;
+        token.user = user;
       }
       return token;
     },
     async session({ session, token }) {
       // Send properties to the client, like an access_token from a provider.
       session.accessToken = token.accessToken as string;
-      session.user.id = token.id as string;
+      session.user = getUserDataFromJwtUser(token.user);
       return session;
     },
   },

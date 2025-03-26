@@ -1,6 +1,6 @@
 'use client';
 
-import { sendOtp, verifyOtp } from '@/server/auth/utils';
+import { sendOtp, verifyOtp } from '@/server/auth/otp';
 import { Send } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';

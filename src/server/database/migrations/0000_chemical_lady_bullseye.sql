@@ -45,14 +45,14 @@ CREATE TABLE "account" (
 --> statement-breakpoint
 CREATE TABLE "user" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"name" varchar(255) NOT NULL,
+	"name" varchar(255),
 	"profile_picture" varchar(255),
 	"email" varchar(255),
+	"mobile" varchar(15),
 	"email_verified" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	"status" "status" DEFAULT 'active',
-	CONSTRAINT "user_email_unique" UNIQUE("email")
+	"status" "status" DEFAULT 'active'
 );
 --> statement-breakpoint
 CREATE TABLE "verificationToken" (
@@ -70,4 +70,6 @@ CREATE INDEX "groups_user_id_index" ON "groups" USING btree ("user_id");--> stat
 CREATE INDEX "note_group_link_note_id_index" ON "note_group_links" USING btree ("note_id");--> statement-breakpoint
 CREATE INDEX "note_group_link_group_id_index" ON "note_group_links" USING btree ("group_id");--> statement-breakpoint
 CREATE INDEX "notes_user_id_index" ON "notes" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "notes_updated_at_index" ON "notes" USING btree ("updated_at");
+CREATE INDEX "notes_updated_at_index" ON "notes" USING btree ("updated_at");--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_email" ON "user" USING btree ("email") WHERE email IS NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "unique_mobile" ON "user" USING btree ("mobile") WHERE mobile IS NOT NULL;

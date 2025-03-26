@@ -7,23 +7,39 @@ import {
   integer,
   primaryKey,
   text,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 import { GenericTableStatusEnum } from './common';
 import type { AdapterAccountType } from 'next-auth/adapters';
+import { sql } from 'drizzle-orm';
 
 export const UserTypeEnumValues: [string, string] = ['user', 'guest'];
 export const UserTypeEnum = pgEnum('user_type', UserTypeEnumValues);
 
-export const User = pgTable('user', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: varchar('name', { length: 255 }).notNull(),
-  image: varchar('profile_picture', { length: 255 }),
-  email: varchar('email', { length: 255 }).unique(),
-  emailVerified: timestamp('email_verified', { mode: 'date' }),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  updatedAt: timestamp('updated_at').notNull().defaultNow(),
-  status: GenericTableStatusEnum('status').default('active'),
-});
+export const User = pgTable(
+  'user',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: varchar('name', { length: 255 }),
+    image: varchar('profile_picture', { length: 255 }),
+    email: varchar('email', { length: 255 }),
+    mobile: varchar('mobile', { length: 15 }),
+    emailVerified: timestamp('email_verified', { mode: 'date' }),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+    status: GenericTableStatusEnum('status').default('active'),
+  },
+  (table) => {
+    return {
+      uniqueEmail: uniqueIndex('unique_email')
+        .on(table.email)
+        .where(sql`email IS NOT NULL`),
+      uniqueMobile: uniqueIndex('unique_mobile')
+        .on(table.mobile)
+        .where(sql`mobile IS NOT NULL`),
+    };
+  }
+);
 
 export const Account = pgTable(
   'account',

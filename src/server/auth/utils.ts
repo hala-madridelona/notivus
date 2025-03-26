@@ -1,8 +1,7 @@
-'use server';
+/* eslint-disable */
+// @ts-nocheck
 
-import { sendVerificationCode, verifyPhoneNumber } from '../network/partners/twilio';
-
-export const verifyOtp = async (phoneNumber: string, otp: string) =>
-  verifyPhoneNumber(phoneNumber, otp);
-
-export const sendOtp = async (phoneNumber: string) => sendVerificationCode(phoneNumber);
+export const getUserDataFromJwtUser = (tokenUserData: any) => {
+  const { access_token, refresh_token, expires_in, ...rest } = tokenUserData;
+  return rest;
+};

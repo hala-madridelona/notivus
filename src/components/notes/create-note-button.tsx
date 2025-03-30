@@ -1,28 +1,43 @@
 'use client';
 
 import { createNote } from '@/server/business/note';
+import useNoteStore from '@/state/store';
 import { Session } from '@auth/core/types';
+import { PlusSquare } from 'lucide-react';
+import { Button } from '../ui/button';
 
-export const CreateNewNote = async ({ session }: { session: Session }) => {
+export const CreateNewNote = ({ session }: { session: Session }) => {
+  const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
+  const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
   const createNewNoteHandler = async () => {
     if (!session?.user?.id) {
       return;
     }
     try {
-      await createNote({
+      const newNote = await createNote({
         userId: session?.user?.id,
       });
+      if (!newNote) {
+        throw new Error('Note metdata not passed from db');
+      }
+      const { id, title, createdAt, updatedAt } = newNote;
+      updateCurrentNote({
+        id,
+        title: title || '',
+        content: {},
+        createdAt,
+        updatedAt,
+      });
+      updateUserSelection(false);
     } catch (error) {
       console.error(error);
     }
   };
 
   return (
-    <button
-      onClick={createNewNoteHandler}
-      className="outline-2 outline-blue-900 px-2 py-1 rounded-lg bg-amber-400"
-    >
-      Create a Note
-    </button>
+    <Button className="w-fit" onClick={createNewNoteHandler}>
+      <PlusSquare />
+      New Note
+    </Button>
   );
 };

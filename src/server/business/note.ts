@@ -1,7 +1,7 @@
 'use server';
 
 import { throwGracefulError } from '@/utils/error';
-import { eq, InferSelectModel } from 'drizzle-orm';
+import { desc, eq, InferSelectModel } from 'drizzle-orm';
 import { getDbClient } from '../database/connect';
 import { Note } from '../database/models/notes';
 
@@ -12,7 +12,11 @@ export const fetchAllNotes = async ({ userId }: { userId: string }) => {
 
   try {
     const dbClient = getDbClient();
-    const notes = await dbClient?.select().from(Note).where(eq(Note.userId, userId));
+    const notes = await dbClient
+      ?.select()
+      .from(Note)
+      .where(eq(Note.userId, userId))
+      .orderBy(desc(Note.updatedAt));
     return notes;
   } catch (error) {
     return throwGracefulError(fetchAllNotes.name, (error as Error).message);
@@ -59,11 +63,26 @@ export const updateNote = async ({
       ?.update(Note)
       .set({
         [field]: value,
+        updatedAt: new Date(),
       })
       .where(eq(Note.id, noteId))
       .returning();
     return updatedRecord?.[0];
   } catch (error) {
     return throwGracefulError(updateNote.name, (error as Error).message);
+  }
+};
+
+export const updateNoteTimestamp = async ({ noteId }: { noteId: string }) => {
+  try {
+    const db = getDbClient();
+    await db
+      ?.update(Note)
+      .set({
+        updatedAt: new Date(),
+      })
+      .where(eq(Note.id, noteId));
+  } catch (error) {
+    return throwGracefulError(updateNoteTimestamp.name, (error as Error).message);
   }
 };

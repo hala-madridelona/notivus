@@ -1,32 +1,26 @@
 'use client';
 
-import { fetchAllNotes, updateNote } from '@/server/business/note';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { fetchAllNotes } from '@/server/business/note';
+import { useQuery } from '@tanstack/react-query';
 import { Loader } from 'lucide-react';
 import { Session } from '@auth/core/types';
+import useNoteStore from '@/state/store';
+import clsx from 'clsx';
 
 export const ListNotes = ({ session }: { session: Session }) => {
-  const queryClient = useQueryClient();
   const { data, error, isLoading } = useQuery({
     queryKey: ['fetchNotes'],
     queryFn: () => fetchAllNotes({ userId: session?.user?.id as string }),
     enabled: !!session?.user?.id,
   });
+  const currentNote = useNoteStore((state) => state.currentNote);
+  const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
+  const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
 
-  const mutation = useMutation({
-    mutationFn: updateNote,
-    onSuccess: () => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ['fetchNotes'] });
-    },
-  });
-
-  const handleUpdate = (noteId: string) => {
-    mutation.mutate({
-      noteId,
-      field: 'content',
-      value: Math.random().toString(36).substr(2, 10),
-    });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleNoteSelect = (note: any) => {
+    updateCurrentNote(note);
+    updateUserSelection(false);
   };
 
   if (isLoading) {
@@ -41,18 +35,22 @@ export const ListNotes = ({ session }: { session: Session }) => {
     <div>
       {data?.map((noteRecord) => {
         return (
-          <div className="flex gap-2" key={`Note-${noteRecord.id}`}>
+          <div
+            onClick={() => handleNoteSelect(noteRecord)}
+            className={clsx(
+              {
+                'bg-amber-600': noteRecord.id === currentNote?.id,
+              },
+              'flex gap-2 cursor-pointer hover:bg-amber-600 hover:text-white'
+            )}
+            key={`Note-${noteRecord.id}`}
+          >
             <span>
               <strong>Id:</strong> {noteRecord.id}
             </span>
             <span>
               <strong>Title:</strong> {noteRecord.title}
             </span>
-            <span>
-              <strong>Content:</strong>
-              {noteRecord.content}
-            </span>
-            <button onClick={() => handleUpdate(noteRecord.id)}>Update Note</button>
           </div>
         );
       })}

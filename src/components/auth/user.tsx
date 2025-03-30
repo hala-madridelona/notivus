@@ -7,6 +7,7 @@ import { SignOut } from './sign-out-button';
 import { MobileVerificationForm } from '../forms/mobile-verification';
 import { CreateNewNote } from '../notes/create-note-button';
 import { ListNotes } from '../notes/list-notes';
+import { Editor } from '../editor/editor';
 
 export default async function User() {
   const session = await auth();
@@ -20,11 +21,17 @@ export default async function User() {
     );
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <UserAvatar />
       <SignOut />
-      <CreateNewNote session={session} />
-      <ListNotes session={session} />
+
+      <div className="flex flex-row gap-4">
+        <div className="flex flex-col">
+          <CreateNewNote session={session} />
+          <ListNotes session={session} />
+        </div>
+        <Editor />
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ export const Editor = () => {
   const currentNote = useNoteStore((state) => state.currentNote);
   const hasUserSelecton = useNoteStore((state) => state.hasUserSelection);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
+  const updateCurrentNoteContent = useNoteStore((state) => state.updateCurrentNoteContent);
   const queryClient = useQueryClient();
 
   const updateNoteMutation = useMutation({
@@ -35,12 +36,15 @@ export const Editor = () => {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleNoteContent = (noteId: string, content: any) => {
-    updateNoteMutation.mutate({
-      noteId,
-      field: 'content',
-      value: content,
-    });
+  const handleNoteContent = (noteId: string, content: any, successCallback?: any) => {
+    updateNoteMutation.mutate(
+      {
+        noteId,
+        field: 'content',
+        value: content,
+      },
+      { ...(successCallback && { onSuccess: successCallback }) }
+    );
   };
 
   const handleNoteTimestampUpdate = (noteId: string) => {
@@ -49,14 +53,21 @@ export const Editor = () => {
     });
   };
 
-  const myCustomHandler = debounceMyFun((noteId: string, content: string) => {
-    if (!currentNote) {
-      return;
-    }
-    handleNoteContent(noteId, content);
-  }, 1000);
+  const myCustomHandler = debounceMyFun(
+    (noteId: string, content: string, successCallback?: () => void) => {
+      if (!currentNote) {
+        return;
+      }
+      handleNoteContent(noteId, content, successCallback);
+    },
+    1000
+  );
 
   useEffect(() => {}, [currentNote, quill]);
+
+  // useEffect(() => {
+  //   console.log('CURRENT NOTE GOT UPDATED');
+  // }, [currentNote])
 
   useEffect(() => {
     if (!currentNote || !quill) {
@@ -91,8 +102,22 @@ export const Editor = () => {
 
     const textChangeEvent = () => {
       // console.log('TEXT CHANGE EVENT WAS FIRED => ', event);
-      const content = JSON.parse(JSON.stringify(quill?.getContents()));
-      myCustomHandler(currentNote?.id, content);
+      const currentContent = quill?.getContents();
+      const contentInJson = JSON.parse(JSON.stringify(currentContent));
+
+      // try {
+      //     const newDelta = new Delta(contentInJson);
+      //     console.log('NEW DELTA => ', newDelta);
+      //     newDelta.eachLine((line, attributes, index) => {
+      //       console.log('LINE => ', line, ' AND ATTRS => ', attributes, ' AND INDEX => ', index);
+      //     })
+      // } catch (error){
+      //     console.error(error);
+      // }
+
+      myCustomHandler(currentNote?.id, contentInJson, () => {
+        updateCurrentNoteContent(contentInJson);
+      });
     };
 
     // quill?.on('editor-change', editorChangeHandler);

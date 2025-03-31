@@ -22,7 +22,7 @@ CREATE TABLE "note_group_links" (
 CREATE TABLE "notes" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"title" varchar(255) DEFAULT 'New Note',
-	"content" text,
+	"content" jsonb,
 	"user_id" uuid NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,

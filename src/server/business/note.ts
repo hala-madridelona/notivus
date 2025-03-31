@@ -2,8 +2,8 @@
 
 import { throwGracefulError } from '@/utils/error';
 import { desc, eq, InferSelectModel } from 'drizzle-orm';
-import { getDbClient } from '../database/connect';
 import { Note } from '../database/models/notes';
+import { db } from '../database/connect';
 
 export const fetchAllNotes = async ({ userId }: { userId: string }) => {
   if (!userId) {
@@ -11,8 +11,7 @@ export const fetchAllNotes = async ({ userId }: { userId: string }) => {
   }
 
   try {
-    const dbClient = getDbClient();
-    const notes = await dbClient
+    const notes = await db
       ?.select()
       .from(Note)
       .where(eq(Note.userId, userId))
@@ -29,8 +28,7 @@ export const createNote = async ({ userId }: { userId: string }) => {
   }
 
   try {
-    const dbClient = getDbClient();
-    const note = await dbClient
+    const note = await db
       ?.insert(Note)
       .values({
         userId,
@@ -58,7 +56,6 @@ export const updateNote = async ({
   }
 
   try {
-    const db = getDbClient();
     const updatedRecord = await db
       ?.update(Note)
       .set({
@@ -75,7 +72,6 @@ export const updateNote = async ({
 
 export const updateNoteTimestamp = async ({ noteId }: { noteId: string }) => {
   try {
-    const db = getDbClient();
     await db
       ?.update(Note)
       .set({

@@ -14,6 +14,7 @@ interface Note {
 interface Store {
   currentNote: Note | null;
   updateCurrentNote: (notePayload: Note) => any;
+  updateCurrentNoteContent: (noteContent: any) => any;
   hasUserSelection: boolean;
   updateUserSelection: (nextState: boolean) => any;
 }
@@ -25,6 +26,13 @@ const useNoteStore = create<Store>((set) => ({
       ...state,
       currentNote: notePayload,
     })),
+  updateCurrentNoteContent: (noteContent: any) =>
+    set((state) => {
+      state['currentNote']['content'] = noteContent;
+      return {
+        ...state,
+      };
+    }),
   hasUserSelection: false,
   updateUserSelection: (flag: boolean) =>
     set((state) => ({

@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1742986745384,
-      "tag": "0000_chemical_lady_bullseye",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1743330935032,
-      "tag": "0001_medical_mephistopheles",
+      "when": 1743414066617,
+      "tag": "0000_acoustic_sentinels",
       "breakpoints": true
     }
   ]

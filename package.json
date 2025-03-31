@@ -9,7 +9,13 @@
     "build:local": "__NEXT_TEST_MODE=1 next build",
     "start": "next start",
     "lint": "next lint",
-    "db:migrate": "drizzle-kit generate --dialect=postgresql --out=./src/server/database/migrations --schema=./src/server/database/models/*.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/server/database/utils/migrate.ts",
+    "db:drop": "drizzle-kit drop",
+    "db:pull": "drizzle-kit introspect",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:check": "drizzle-kit check",
     "prepare": "husky"
   },
   "dependencies": {
@@ -49,6 +55,7 @@
     "lint-staged": "^15.5.0",
     "prettier": "^3.5.3",
     "tailwindcss": "^4",
+    "tsx": "^4.19.3",
     "typescript": "^5"
   },
   "lint-staged": {

@@ -15,6 +15,7 @@ interface Store {
   currentNote: Note | null;
   updateCurrentNote: (notePayload: Note) => any;
   updateCurrentNoteContent: (noteContent: any) => any;
+  updateCurrentNoteTitle: (noteTitle: any) => any;
   hasUserSelection: boolean;
   updateUserSelection: (nextState: boolean) => any;
 }
@@ -29,6 +30,13 @@ const useNoteStore = create<Store>((set) => ({
   updateCurrentNoteContent: (noteContent: any) =>
     set((state) => {
       state['currentNote']['content'] = noteContent;
+      return {
+        ...state,
+      };
+    }),
+  updateCurrentNoteTitle: (noteTitle: any) =>
+    set((state) => {
+      state['currentNote']['title'] = noteTitle;
       return {
         ...state,
       };

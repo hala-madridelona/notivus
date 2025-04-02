@@ -8,6 +8,22 @@ import { debounceMyFun } from '@/utils/client/debounce';
 import useNoteStore from '@/state/store';
 import { updateNote, updateNoteTimestamp } from '@/server/business/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Delta } from 'quill';
+
+const extractTitleFromDelta = (delta: Delta) => {
+  let title = '';
+  delta['ops'].forEach((operation) => {
+    if (operation.insert != null && typeof operation.insert === 'string') {
+      const index = operation.insert.indexOf('\n', 0);
+      if (index != -1) {
+        title = title + operation.insert.substring(0, index);
+      } else {
+        title = operation.insert;
+      }
+    }
+  });
+  return title;
+};
 
 export const Editor = () => {
   const { quill, quillRef } = useQuill({
@@ -17,6 +33,7 @@ export const Editor = () => {
   const hasUserSelecton = useNoteStore((state) => state.hasUserSelection);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
   const updateCurrentNoteContent = useNoteStore((state) => state.updateCurrentNoteContent);
+  const updateCurrentNoteTitle = useNoteStore((state) => state.updateCurrentNoteTitle);
   const queryClient = useQueryClient();
 
   const updateNoteMutation = useMutation({
@@ -47,18 +64,40 @@ export const Editor = () => {
     );
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleNoteTitleUpdate = (noteId: string, title: string, successCallback?: any) => {
+    updateNoteMutation.mutate(
+      {
+        noteId,
+        field: 'title',
+        value: title,
+      },
+      { ...(successCallback && { onSuccess: successCallback }) }
+    );
+  };
+
   const handleNoteTimestampUpdate = (noteId: string) => {
     updateNoteTimestampMutation.mutate({
       noteId,
     });
   };
 
-  const myCustomHandler = debounceMyFun(
+  const debouncedContentUpdater = debounceMyFun(
     (noteId: string, content: string, successCallback?: () => void) => {
       if (!currentNote) {
         return;
       }
       handleNoteContent(noteId, content, successCallback);
+    },
+    500
+  );
+
+  const debouncedTitleUpdater = debounceMyFun(
+    (noteId: string, title: string, successCallback?: () => void) => {
+      if (!currentNote) {
+        return;
+      }
+      handleNoteTitleUpdate(noteId, title, successCallback);
     },
     1000
   );
@@ -105,17 +144,16 @@ export const Editor = () => {
       const currentContent = quill?.getContents();
       const contentInJson = JSON.parse(JSON.stringify(currentContent));
 
-      // try {
-      //     const newDelta = new Delta(contentInJson);
-      //     console.log('NEW DELTA => ', newDelta);
-      //     newDelta.eachLine((line, attributes, index) => {
-      //       console.log('LINE => ', line, ' AND ATTRS => ', attributes, ' AND INDEX => ', index);
-      //     })
-      // } catch (error){
-      //     console.error(error);
-      // }
+      const oldTitle = extractTitleFromDelta(currentNote?.content);
+      const newTitle = extractTitleFromDelta(contentInJson);
 
-      myCustomHandler(currentNote?.id, contentInJson, () => {
+      if (newTitle !== oldTitle) {
+        debouncedTitleUpdater(currentNote?.id, newTitle, () => {
+          updateCurrentNoteTitle(newTitle);
+        });
+      }
+
+      debouncedContentUpdater(currentNote?.id, contentInJson, () => {
         updateCurrentNoteContent(contentInJson);
       });
     };

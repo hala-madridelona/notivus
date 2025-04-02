@@ -1,7 +1,7 @@
 'use server';
 
 import { throwGracefulError } from '@/utils/error';
-import { desc, eq, InferSelectModel } from 'drizzle-orm';
+import { and, desc, eq, InferSelectModel } from 'drizzle-orm';
 import { Note } from '../database/models/notes';
 import { db } from '../database/connect';
 
@@ -14,7 +14,7 @@ export const fetchAllNotes = async ({ userId }: { userId: string }) => {
     const notes = await db
       ?.select()
       .from(Note)
-      .where(eq(Note.userId, userId))
+      .where(and(eq(Note.status, 'active'), eq(Note.userId, userId)))
       .orderBy(desc(Note.updatedAt));
     return notes;
   } catch (error) {
@@ -37,6 +37,23 @@ export const createNote = async ({ userId }: { userId: string }) => {
     return note?.[0] ?? null;
   } catch (error) {
     return throwGracefulError(createNote.name, (error as Error).message);
+  }
+};
+
+export const deleteNote = async ({ noteId, userId }: { noteId: string; userId: string }) => {
+  if (!userId) {
+    return throwGracefulError(deleteNote.name, 'userId is empty');
+  }
+
+  try {
+    await db
+      .update(Note)
+      .set({
+        status: 'deleted',
+      })
+      .where(and(eq(Note.id, noteId), eq(Note.userId, userId)));
+  } catch (error) {
+    return throwGracefulError(deleteNote.name, (error as Error).message);
   }
 };
 

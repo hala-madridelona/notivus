@@ -24,6 +24,21 @@ const createNewUser = async ({
   }
 };
 
+const fetchUserById = async ({ userId }: { userId: string }) => {
+  if (!userId) {
+    return throwGracefulError(fetchUserById.name, `userId is not defined`);
+  }
+  try {
+    const dbSelectResult = await db.select().from(User).where(eq(User.id, userId));
+    if (!dbSelectResult || !dbSelectResult.length) {
+      throw new Error(`Something went wrong with select query`);
+    }
+    return dbSelectResult?.[0];
+  } catch (error) {
+    return throwGracefulError(fetchUserById.name, (error as Error).message);
+  }
+};
+
 const fetchUserOrCreateNewUser = async ({
   email,
   mobile,
@@ -49,4 +64,4 @@ const fetchUserOrCreateNewUser = async ({
   }
 };
 
-export { fetchUserOrCreateNewUser };
+export { fetchUserOrCreateNewUser, fetchUserById };

@@ -6,7 +6,7 @@ import { useQuill } from 'react-quilljs';
 import 'quill/dist/quill.bubble.css';
 import { debounceMyFun } from '@/utils/client/debounce';
 import useNoteStore from '@/state/store';
-import { updateNote, updateNoteTimestamp } from '@/server/business/note';
+import { updateNote, updateNoteTimestamp } from '@/server/lib/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Delta } from 'quill';
 

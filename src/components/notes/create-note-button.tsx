@@ -1,6 +1,6 @@
 'use client';
 
-import { createNote, updateNote } from '@/server/business/note';
+import { createNote, updateNote } from '@/server/lib/note';
 import useNoteStore from '@/state/store';
 import { Session } from '@auth/core/types';
 import { PlusSquare } from 'lucide-react';

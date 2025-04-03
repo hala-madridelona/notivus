@@ -8,6 +8,7 @@ import { MobileVerificationForm } from '../forms/mobile-verification';
 import { CreateNewNote } from '../notes/create-note-button';
 import { ListNotes } from '../notes/list-notes';
 import { Editor } from '../editor/editor';
+import { CreateGroupForm } from '../forms/create-group';
 
 export default async function User() {
   const session = await auth();
@@ -31,6 +32,10 @@ export default async function User() {
           <ListNotes session={session} />
         </div>
         <Editor />
+      </div>
+
+      <div className="w-[300px]">
+        <CreateGroupForm session={session} />
       </div>
     </div>
   );

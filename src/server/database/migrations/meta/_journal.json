@@ -8,6 +8,13 @@
       "when": 1743414066617,
       "tag": "0000_acoustic_sentinels",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1743711525452,
+      "tag": "0001_rainy_santa_claus",
+      "breakpoints": true
     }
   ]
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { deleteNote, fetchAllNotes } from '@/server/business/note';
+import { deleteNote, fetchAllNotes } from '@/server/lib/note';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader, Trash2 } from 'lucide-react';
 import { Session } from '@auth/core/types';

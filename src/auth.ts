@@ -6,7 +6,7 @@ import Github from 'next-auth/providers/github';
 
 import { Account, User, VerificationToken } from './server/database/models/users';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { fetchUserOrCreateNewUser } from './server/business/user';
+import { fetchUserOrCreateNewUser } from './server/lib/user';
 import { INDIA_MOBILE_EXTENSION } from './utils/constants';
 import { getUserDataFromJwtUser } from './server/auth/utils';
 import { db } from './server/database/connect';

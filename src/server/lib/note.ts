@@ -88,6 +88,10 @@ export const updateNote = async ({
 };
 
 export const updateNoteTimestamp = async ({ noteId }: { noteId: string }) => {
+  if (!noteId) {
+    return throwGracefulError(updateNoteTimestamp.name, `noteId is not defined`);
+  }
+
   try {
     await db
       ?.update(Note)

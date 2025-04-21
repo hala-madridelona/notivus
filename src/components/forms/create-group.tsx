@@ -9,10 +9,14 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } fr
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import { useFetchTags } from '@/hooks/entity/use-fetch-tags';
+import { createOrAddTagForGroup } from '@/server/lib/tag';
+import { useQueryClient } from '@tanstack/react-query';
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
   description: z.string().min(0).max(200),
+  tagName: z.string().min(2).max(50),
 });
 
 export const CreateGroupForm = ({ session }: { session: Session }) => {
@@ -26,12 +30,24 @@ export const CreateGroupForm = ({ session }: { session: Session }) => {
     },
   });
 
+  const { tags: existingTags } = useFetchTags(session?.user?.id as string);
+  console.log('ET => ', existingTags);
+  const queryClient = useQueryClient();
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      await createGroupSafe({
+      const group = await createGroupSafe({
         userId,
         name: values.name,
         description: values.description,
+      });
+      await createOrAddTagForGroup({
+        userId,
+        groupId: group.id,
+        name: values.tagName,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['fetchGroups'],
       });
     } catch (error) {
       console.error('SWW => ', error);
@@ -69,6 +85,18 @@ export const CreateGroupForm = ({ session }: { session: Session }) => {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="tagName"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Add a new tag" {...field} />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
         <Button type="submit">Create Group</Button>
       </form>
     </Form>

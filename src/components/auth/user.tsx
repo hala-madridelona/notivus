@@ -9,6 +9,7 @@ import { CreateNewNote } from '../notes/create-note-button';
 import { ListNotes } from '../notes/list-notes';
 import { Editor } from '../editor/editor';
 import { CreateGroupForm } from '../forms/create-group';
+import { ListGroups } from '../groups/list-groups';
 
 export default async function User() {
   const session = await auth();
@@ -37,6 +38,7 @@ export default async function User() {
       <div className="w-[300px]">
         <CreateGroupForm session={session} />
       </div>
+      <ListGroups session={session} />
     </div>
   );
 }

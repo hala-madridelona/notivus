@@ -65,5 +65,22 @@ export const fetchGroups = async ({ userId }: { userId: string }) => {
   }
 };
 
+export const deleteGroup = async ({ userId, groupId }: { userId: string; groupId: string }) => {
+  if (!userId) {
+    return throwGracefulError(fetchGroups.name, `userId is not defined`);
+  }
+  try {
+    await db
+      .update(Group)
+      .set({
+        status: 'deleted',
+      })
+      .where(and(eq(Group.id, groupId), eq(Group.userId, userId)));
+  } catch (error) {
+    return throwGracefulError(deleteGroup.name, (error as Error).message);
+  }
+};
+
 export const fetchGroupsSafe = withDependencyOn(fetchGroups, fetchUserById);
 export const createGroupSafe = withDependencyOn(createGroup, fetchUserById);
+export const deleteGroupSafe = withDependencyOn(deleteGroup, fetchUserById);

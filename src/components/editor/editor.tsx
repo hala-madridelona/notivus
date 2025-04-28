@@ -9,6 +9,7 @@ import useNoteStore from '@/state/store';
 import { updateNote, updateNoteTimestamp } from '@/server/lib/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Delta } from 'quill';
+import { addNoteToGroup } from '@/server/lib/note-group-link';
 
 const extractTitleFromDelta = (delta: Delta) => {
   let title = '';
@@ -25,6 +26,12 @@ const extractTitleFromDelta = (delta: Delta) => {
   return title;
 };
 
+const extractTagFromContentString = (contentString: string) => {
+  const tagRegex = /#(\w+)/g;
+  const matches = contentString.match(tagRegex);
+  return matches ? matches.map((match) => match.slice(1)) : [];
+};
+
 export const Editor = () => {
   const { quill, quillRef } = useQuill({
     theme: 'bubble',
@@ -35,7 +42,8 @@ export const Editor = () => {
   const updateCurrentNoteContent = useNoteStore((state) => state.updateCurrentNoteContent);
   const updateCurrentNoteTitle = useNoteStore((state) => state.updateCurrentNoteTitle);
   const queryClient = useQueryClient();
-
+  const groups = useNoteStore((state) => state.groups);
+  const updateGroups = useNoteStore((state) => state.updateGroups);
   const updateNoteMutation = useMutation({
     mutationFn: updateNote,
     onSuccess: () => {
@@ -52,8 +60,14 @@ export const Editor = () => {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleNoteContent = (noteId: string, content: any, successCallback?: any) => {
+  const handleNoteContent = (
+    noteId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    content: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    successCallback?: any,
+    currentContentString?: string
+  ) => {
     updateNoteMutation.mutate(
       {
         noteId,
@@ -62,6 +76,34 @@ export const Editor = () => {
       },
       { ...(successCallback && { onSuccess: successCallback }) }
     );
+
+    const possibleTags = extractTagFromContentString(currentContentString as string);
+
+    const tagPromises = possibleTags.map(async (tag) => {
+      try {
+        const operation = await addNoteToGroup({
+          noteId: currentNote?.id as string,
+          tagName: tag,
+        });
+        const updatedGroups = groups.map((group) => {
+          if (group.id === operation.groupId) {
+            return {
+              ...group,
+              noteCount: group.noteCount + 1,
+            };
+          }
+          return group;
+        });
+        updateGroups(updatedGroups);
+        queryClient.invalidateQueries({ queryKey: ['fetchNotesInGroup', operation.groupId] });
+        return operation;
+      } catch (error) {
+        console.error('SWW => ', error);
+        return null;
+      }
+    });
+
+    Promise.all(tagPromises);
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,11 +125,16 @@ export const Editor = () => {
   };
 
   const debouncedContentUpdater = debounceMyFun(
-    (noteId: string, content: string, successCallback?: () => void) => {
+    (
+      noteId: string,
+      content: string,
+      successCallback?: () => void,
+      currentContentString?: string
+    ) => {
       if (!currentNote) {
         return;
       }
-      handleNoteContent(noteId, content, successCallback);
+      handleNoteContent(noteId, content, successCallback, currentContentString);
     },
     500
   );
@@ -153,9 +200,15 @@ export const Editor = () => {
         });
       }
 
-      debouncedContentUpdater(currentNote?.id, contentInJson, () => {
-        updateCurrentNoteContent(contentInJson);
-      });
+      const currentContentString = quill?.getText();
+      debouncedContentUpdater(
+        currentNote?.id,
+        contentInJson,
+        () => {
+          updateCurrentNoteContent(contentInJson);
+        },
+        currentContentString
+      );
     };
 
     // quill?.on('editor-change', editorChangeHandler);

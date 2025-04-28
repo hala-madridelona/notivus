@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="80" viewBox="0 0 280 80">
+  <!-- Icon Element -->
+  <g transform="translate(10, 15)">
+    <rect x="0" y="0" width="50" height="50" rx="10" fill="#1E3A8A" />
+    <circle cx="25" cy="25" r="15" fill="#00B4D8" />
+    <path d="M25 10 L37 25 L25 40 L13 25 Z" fill="white" />
+  </g>
+  
+  <!-- Text "Notivus" - Simplified and more legible -->
+  <g transform="translate(75, 48)">
+    <!-- Text Background for better legibility -->
+    <rect x="-5" y="-30" width="200" height="36" rx="4" fill="white" />
+    
+    <!-- Text elements with simpler paths -->
+    <text font-family="Arial, sans-serif" font-weight="bold" font-size="30">
+      <tspan x="0" y="0" fill="#1E3A8A">N</tspan>
+      <tspan x="24" y="0" fill="#00B4D8">o</tspan>
+      <tspan x="46" y="0" fill="#1E3A8A">t</tspan>
+      <tspan x="59" y="0" fill="#00B4D8">i</tspan>
+      <tspan x="68" y="0" fill="#1E3A8A">v</tspan>
+      <tspan x="88" y="0" fill="#00B4D8">u</tspan>
+      <tspan x="111" y="0" fill="#1E3A8A">s</tspan>
+    </text>
+  </g>
+</svg> 

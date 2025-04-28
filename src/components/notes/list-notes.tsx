@@ -43,28 +43,37 @@ export const ListNotes = ({ session }: { session: Session }) => {
   }
 
   return (
-    <div>
+    <div className="space-y-2">
       {data?.map((noteRecord) => {
         return (
           <div
             onClick={() => handleNoteSelect(noteRecord)}
             className={clsx(
               {
-                'bg-amber-600': noteRecord.id === currentNote?.id,
+                'bg-cyan-50 border-cyan-500': noteRecord.id === currentNote?.id,
               },
-              'flex gap-2 cursor-pointer hover:bg-amber-600 hover:text-white'
+              'flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors duration-200'
             )}
             key={`Note-${noteRecord.id}`}
           >
-            <span>
-              <strong>Id:</strong> {noteRecord.id}
-            </span>
-            <span>
-              <strong>Title:</strong>{' '}
-              {noteRecord.id === currentNote?.id ? currentNote?.title : noteRecord.title}
-            </span>
-            <Button size="icon" onClick={() => handleNoteDelete(noteRecord.id)}>
-              <Trash2 />
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-medium text-gray-900 truncate">
+                {noteRecord.id === currentNote?.id ? currentNote?.title : noteRecord.title}
+              </h3>
+              <p className="text-xs text-gray-500 truncate">
+                {new Date(noteRecord.updatedAt).toLocaleDateString()}
+              </p>
+            </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="hover:bg-cyan-50 hover:text-cyan-600"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNoteDelete(noteRecord.id);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         );

@@ -63,8 +63,11 @@ export const CreateNewNote = ({ session }: { session: Session }) => {
   };
 
   return (
-    <Button className="w-fit" onClick={createNewNoteHandler}>
-      <PlusSquare />
+    <Button
+      className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-600 text-white"
+      onClick={createNewNoteHandler}
+    >
+      <PlusSquare className="h-4 w-4" />
       New Note
     </Button>
   );

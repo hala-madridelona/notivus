@@ -1,9 +1,9 @@
-import { auth } from '@/auth';
+'use client';
+
+import { Session } from 'next-auth';
 import Image from 'next/image';
 
-export default async function UserAvatar() {
-  const session = await auth();
-
+export default function UserAvatar({ session }: { session: Session }) {
   if (!session?.user) return null;
 
   return (

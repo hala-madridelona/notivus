@@ -3,9 +3,10 @@
 import { throwGracefulError } from '@/utils/error';
 import { db } from '../database/connect';
 import { Group } from '../database/models/groups';
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import { withDependencyOn } from '@/utils/higher-order-funcs';
 import { fetchUserById } from './user';
+import { NoteGroupLink } from '../database/models/note-group-link';
 
 export const createGroup = async ({
   userId,
@@ -56,9 +57,25 @@ export const fetchGroups = async ({ userId }: { userId: string }) => {
   }
   try {
     const groups = await db
-      .select()
+      .select({
+        id: Group.id,
+        name: Group.name,
+        description: Group.description,
+        userId: Group.userId,
+        createdAt: Group.createdAt,
+        updatedAt: Group.updatedAt,
+        status: Group.status,
+        noteCount: count(NoteGroupLink.groupId),
+      })
       .from(Group)
-      .where(and(eq(Group.userId, userId), eq(Group.status, 'active')));
+      .where(and(eq(Group.userId, userId), eq(Group.status, 'active')))
+      .leftJoin(NoteGroupLink, eq(Group.id, NoteGroupLink.groupId))
+      .groupBy(Group.id);
+
+    if (!groups || groups.length === 0) {
+      return throwGracefulError(fetchGroups.name, 'No groups found');
+    }
+
     return groups;
   } catch (error) {
     return throwGracefulError(fetchGroups.name, (error as Error).message);

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80">
+  <!-- Icon Element -->
+  <rect x="10" y="10" width="60" height="60" rx="12" fill="#1E3A8A" />
+  <circle cx="40" cy="40" r="20" fill="#00B4D8" />
+  <path d="M40 18 L56 40 L40 62 L24 40 Z" fill="white" />
+  
+  <!-- Additional geometric element -->
+  <circle cx="40" cy="40" r="6" fill="#1E3A8A" />
+</svg> 

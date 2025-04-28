@@ -1,13 +1,11 @@
 import NextAuth, { type DefaultSession } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 
 import Github from 'next-auth/providers/github';
+import Google from 'next-auth/providers/google';
 
 import { Account, User, VerificationToken } from './server/database/models/users';
 import { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import { fetchUserOrCreateNewUser } from './server/lib/user';
-import { INDIA_MOBILE_EXTENSION } from './utils/constants';
 import { getUserDataFromJwtUser } from './server/auth/utils';
 import { db } from './server/database/connect';
 
@@ -38,17 +36,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   }),
   providers: [
     Github,
-    Credentials({
-      id: 'mobile-otp',
-      credentials: {},
-      authorize: async (credentials) => {
-        const { mobileNumber } = credentials as Record<string, string>;
-        const user = await fetchUserOrCreateNewUser({
-          mobile: `${INDIA_MOBILE_EXTENSION}${mobileNumber}`,
-        });
-        return user;
-      },
-    }),
+    Google,
+    // Credentials({
+    //   id: 'mobile-otp',
+    //   credentials: {},
+    //   authorize: async (credentials) => {
+    //     const { mobileNumber } = credentials as Record<string, string>;
+    //     const user = await fetchUserOrCreateNewUser({
+    //       mobile: `${INDIA_MOBILE_EXTENSION}${mobileNumber}`,
+    //     });
+    //     return user;
+    //   },
+    // }),
   ],
 
   callbacks: {

@@ -38,11 +38,12 @@ export function DrawerDialogDemo({
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[425px]">
-          (title || description) ?
-          <DialogHeader>
-            {title && <DialogTitle>{title}</DialogTitle>}
-            {description && <DialogDescription>{description}</DialogDescription>}
-          </DialogHeader>
+          {title || description ? (
+            <DialogHeader>
+              {title && <DialogTitle>{title}</DialogTitle>}
+              {description && <DialogDescription>{description}</DialogDescription>}
+            </DialogHeader>
+          ) : null}
           {children}
         </DialogContent>
       </Dialog>

@@ -11,8 +11,21 @@ interface Note {
   updatedAt: Date;
 }
 
+interface Group {
+  id: string;
+  name: string;
+  description: string | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  status: string | null;
+  noteCount: number;
+}
+
 interface Store {
   currentNote: Note | null;
+  groups: Group[];
+  updateGroups: (groups: Group[]) => any;
   updateCurrentNote: (notePayload: Note) => any;
   updateCurrentNoteContent: (noteContent: any) => any;
   updateCurrentNoteTitle: (noteTitle: any) => any;
@@ -22,6 +35,12 @@ interface Store {
 
 const useNoteStore = create<Store>((set) => ({
   currentNote: null,
+  groups: [],
+  updateGroups: (groups: Group[]) =>
+    set((state) => ({
+      ...state,
+      groups: groups,
+    })),
   updateCurrentNote: (notePayload: Note) =>
     set((state) => ({
       ...state,

@@ -1,11 +1,25 @@
+'use server';
+
 import { throwGracefulError } from '@/utils/error';
 import { db } from '../database/connect';
 import { Tags } from '../database/models/tag';
 import { and, eq, InferSelectModel } from 'drizzle-orm';
 
-export const createTag = async ({ userId, name }: { userId: string; name: string }) => {
+export const createTag = async ({
+  userId,
+  name,
+  groupId,
+}: {
+  userId: string;
+  name: string;
+  groupId: string;
+}) => {
   if (!userId) {
     return throwGracefulError(createTag.name, `userId is not defined`);
+  }
+
+  if (!groupId) {
+    return throwGracefulError(createTag.name, `groupId is not defined`);
   }
 
   try {
@@ -13,7 +27,7 @@ export const createTag = async ({ userId, name }: { userId: string; name: string
     const entryWithName = await db
       .select()
       .from(Tags)
-      .where(and(eq(Tags.userId, userId), eq(Tags.name, trimmedName)));
+      .where(and(eq(Tags.userId, userId), eq(Tags.name, trimmedName), eq(Tags.groupId, groupId)));
     if (entryWithName?.length) {
       throw new Error(`Tag exists with same name`);
     }
@@ -23,6 +37,7 @@ export const createTag = async ({ userId, name }: { userId: string; name: string
       .values({
         name: trimmedName,
         userId,
+        groupId,
       })
       .returning();
 
@@ -86,5 +101,21 @@ export const updateTag = async ({
     return updateQueryResult?.[0];
   } catch (error) {
     return throwGracefulError(fetchAllTags.name, (error as Error).message);
+  }
+};
+
+export const fetchTagsForAGroup = async ({ groupId }: { groupId: string }) => {
+  if (!groupId) {
+    return throwGracefulError(fetchTagsForAGroup.name, `groupId is not defined`);
+  }
+
+  try {
+    const tags = await db
+      .select()
+      .from(Tags)
+      .where(and(eq(Tags.groupId, groupId), eq(Tags.status, 'active')));
+    return tags;
+  } catch (error) {
+    return throwGracefulError(fetchTagsForAGroup.name, (error as Error).message);
   }
 };

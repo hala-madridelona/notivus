@@ -44,15 +44,17 @@ jobs:
 
       - name: Create .env file
         run: |
-          # Now create the main .env file, using the exported variables
-          cat > .env << EOL
-          # Variables from DEPLOY_ENV_VARS
-          $([ -f .env.temp ] && cat .env.temp)
-          
-          # Database connection string (using values from DEPLOY_ENV_VARS)
-          DATABASE_URL=postgresql://${DB_USER}:${{ env.DB_PASSWORD }}@${DB_HOST}:5432/${DB_NAME}
-          EOL
-          
+          # Initialize .env with DEPLOY_ENV_VARS contents if present
+          if [ -f .env.temp ]; then
+            cat .env.temp > .env
+          else
+            > .env
+          fi
+
+          # Append the database connection string without printing variable values
+          printf 'DATABASE_URL=postgresql://%s:%s@%s:5432/%s\n' \
+            "$DB_USER" "$DB_PASSWORD" "$DB_HOST" "$DB_NAME" >> .env
+
           # Clean up temporary file
           rm -f .env.temp
 
@@ -69,5 +71,8 @@ jobs:
             cd /home/debian/notivus
             npm ci
             npm run build
-            pm2 restart all
+            # Start or restart the app under PM2, updating env on restart
+            pm2 describe notivus-app >/dev/null 2>&1 \
+              && pm2 restart notivus-app --update-env \
+              || pm2 start npm --name notivus-app -- run start
           ' 

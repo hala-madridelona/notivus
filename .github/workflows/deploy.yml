@@ -1,4 +1,4 @@
-name: Deploy to Compute Engine
+name: Deploy App
 
 on:
   push:
@@ -17,9 +17,12 @@ jobs:
           # Create and load env vars from DEPLOY_ENV_VARS
           if [ -n "${{ secrets.DEPLOY_ENV_VARS }}" ]; then
             echo "${{ secrets.DEPLOY_ENV_VARS }}" > .env.temp
-            # Export variables for this step
             export $(grep -v '^#' .env.temp | xargs)
-            # Persist into Actions environment
+            # Mask these values so they never leak into logs
+            echo "::add-mask::$DB_USER"
+            echo "::add-mask::$DB_HOST"
+            echo "::add-mask::$DB_NAME"
+            echo "::add-mask::$GCP_PROJECT_ID"
             echo "DB_USER=$DB_USER" >> $GITHUB_ENV
             echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
             echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
@@ -40,21 +43,19 @@ jobs:
         id: get-secret
         run: |
           DB_PASSWORD=$(gcloud secrets versions access latest --secret=notivus-db-password)
+          # Mask the database password
+          echo "::add-mask::$DB_PASSWORD"
           echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
 
       - name: Create .env file
         run: |
-          # Initialize .env with DEPLOY_ENV_VARS contents if present
-          if [ -f .env.temp ]; then
-            cat .env.temp > .env
-          else
-            > .env
-          fi
-
-          # Append the database connection string without printing variable values
-          printf 'DATABASE_URL=postgresql://%s:%s@%s:5432/%s\n' \
-            "$DB_USER" "$DB_PASSWORD" "$DB_HOST" "$DB_NAME" >> .env
-
+          # Generate .env file securely without printing secrets
+          {
+            # Include any additional variables from DEPLOY_ENV_VARS
+            [ -f .env.temp ] && cat .env.temp
+            # Add the database connection string
+            printf 'DATABASE_URL=postgresql://%s:%s@%s:5432/%s\n' "$DB_USER" "$DB_PASSWORD" "$DB_HOST" "$DB_NAME"
+          } > .env
           # Clean up temporary file
           rm -f .env.temp
 

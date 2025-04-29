@@ -1,0 +1,65 @@
+name: Deploy to Compute Engine
+
+on:
+  push:
+    branches:
+      - main  # Deploy when pushing to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create temporary env file
+        id: load-env
+        run: |
+          # Create and load env vars from DEPLOY_ENV_VARS
+          if [ -n "${{ secrets.DEPLOY_ENV_VARS }}" ]; then
+            echo "${{ secrets.DEPLOY_ENV_VARS }}" > .env.temp
+            # Export variables for this step
+            export $(grep -v '^#' .env.temp | xargs)
+            # Persist into Actions environment
+            echo "DB_USER=$DB_USER" >> $GITHUB_ENV
+            echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+            echo "DB_NAME=$DB_NAME" >> $GITHUB_ENV
+            echo "GCP_PROJECT_ID=$GCP_PROJECT_ID" >> $GITHUB_ENV
+          fi
+
+      - name: Configure Google Cloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Get DB Password
+        id: get-secret
+        run: |
+          DB_PASSWORD=$(gcloud secrets versions access latest --secret=notivus-db-password)
+          echo "DB_PASSWORD=$DB_PASSWORD" >> $GITHUB_ENV
+
+      - name: Create .env file
+        run: |
+          # Now create the main .env file, using the exported variables
+          cat > .env << EOL
+          # Variables from DEPLOY_ENV_VARS
+          $([ -f .env.temp ] && cat .env.temp)
+          
+          # Database connection string (using values from DEPLOY_ENV_VARS)
+          DATABASE_URL=postgresql://${DB_USER}:${{ env.DB_PASSWORD }}@${DB_HOST}:5432/${DB_NAME}
+          EOL
+          
+          # Clean up temporary file
+          rm -f .env.temp
+
+      - name: Deploy to Compute Engine
+        run: |
+          gcloud compute scp --recurse ./ notivus-app:/home/debian/notivus --zone=us-central1-a
+          gcloud compute scp .env notivus-app:/home/debian/notivus/.env --zone=us-central1-a
+          gcloud compute ssh notivus-app --zone=us-central1-a --command='
+            cd /home/debian/notivus
+            npm ci
+            npm run build
+            pm2 restart all
+          ' 

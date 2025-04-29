@@ -63,8 +63,8 @@ jobs:
         run: |
           # Ensure the target directory exists (connect as debian user)
           gcloud compute ssh debian@notivus-app --zone=us-central1-a --command="mkdir -p /home/debian/notivus"
-          # Copy project files
-          gcloud compute scp --recurse ./ debian@notivus-app:/home/debian/notivus --zone=us-central1-a
+          # Copy project files (excluding hidden files like .git)
+          gcloud compute scp --recurse ./* debian@notivus-app:/home/debian/notivus --zone=us-central1-a
           # Copy .env file
           gcloud compute scp .env debian@notivus-app:/home/debian/notivus/.env --zone=us-central1-a
           # SSH in to install deps, build and restart

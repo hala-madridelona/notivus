@@ -39,6 +39,13 @@ jobs:
           # Set the active GCP project for gcloud CLI
           gcloud config set project ${{ env.GCP_PROJECT_ID }}
 
+      - name: Get Cloud SQL Private IP
+        run: |
+          DB_HOST=$(gcloud sql instances describe notivus-postgres \
+            --format="value(ipAddresses[0].ipAddress)")
+          echo "::add-mask::$DB_HOST"
+          echo "DB_HOST=$DB_HOST" >> $GITHUB_ENV
+
       - name: Get DB Password
         id: get-secret
         run: |

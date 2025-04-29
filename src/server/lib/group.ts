@@ -72,7 +72,7 @@ export const fetchGroups = async ({ userId }: { userId: string }) => {
       .leftJoin(NoteGroupLink, eq(Group.id, NoteGroupLink.groupId))
       .groupBy(Group.id);
 
-    if (!groups || groups.length === 0) {
+    if (!groups) {
       return throwGracefulError(fetchGroups.name, 'No groups found');
     }
 

@@ -52,7 +52,6 @@ export default async function User() {
           </div>
         </div>
       </div>
-      <ListGroups session={session} />
     </div>
   );
 }

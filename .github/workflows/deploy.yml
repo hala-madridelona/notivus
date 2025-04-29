@@ -58,6 +58,8 @@ jobs:
 
       - name: Deploy to Compute Engine
         run: |
+          # Ensure the target directory exists
+          gcloud compute ssh notivus-app --zone=us-central1-a --command="mkdir -p /home/debian/notivus"
           gcloud compute scp --recurse ./ notivus-app:/home/debian/notivus --zone=us-central1-a
           gcloud compute scp .env notivus-app:/home/debian/notivus/.env --zone=us-central1-a
           gcloud compute ssh notivus-app --zone=us-central1-a --command='

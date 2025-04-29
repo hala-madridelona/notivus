@@ -61,10 +61,6 @@ export const ListGroups = ({ session }: { session: Session }) => {
     return <div className="p-4">Loading groups...</div>;
   }
 
-  if (error) {
-    return <div className="p-4 text-red-500">Error loading groups</div>;
-  }
-
   return (
     <div className="space-y-2">
       {groups?.map((group: Group) => {
@@ -150,6 +146,7 @@ export const ListGroups = ({ session }: { session: Session }) => {
           </div>
         );
       })}
+      {error && <div className="p-4 text-red-500">Error loading groups</div>}
       <DrawerDialogDemo
         title={`Manage ${selectedGroup?.name}`}
         description="Organise notes in this group via tags"

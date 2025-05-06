@@ -21,6 +21,20 @@ const ibmPlexSans = IBM_Plex_Sans({
 export const metadata: Metadata = {
   title: 'Notivus - Note Taking Application',
   description: 'A modern note-taking application with collaborative features',
+  icons: {
+    icon: '/notivus-icon.svg',
+  },
+  keywords: [
+    'note',
+    'taking',
+    'application',
+    'note-taking',
+    'note-taker',
+    'note-taking-app',
+    'note-taker-app',
+    'note-taking-application',
+    'note-taker-application',
+  ],
 };
 
 export default function RootLayout({

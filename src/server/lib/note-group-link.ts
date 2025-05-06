@@ -32,6 +32,23 @@ export const addNoteToGroup = async ({ noteId, tagName }: { noteId: string; tagN
 
     const { groupId } = tagGroupRelation[0];
 
+    // Check if note is already in the group
+    const existingLink = await db
+      .select()
+      .from(NoteGroupLink)
+      .where(
+        and(
+          eq(NoteGroupLink.noteId, noteId),
+          eq(NoteGroupLink.groupId, groupId as string),
+          eq(NoteGroupLink.status, 'active')
+        )
+      );
+
+    if (existingLink && existingLink.length > 0) {
+      // Note is already in the group, return the existing link
+      return existingLink[0];
+    }
+
     const noteGroupLink = await db
       .insert(NoteGroupLink)
       .values({

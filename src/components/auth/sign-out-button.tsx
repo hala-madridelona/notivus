@@ -17,7 +17,7 @@ export function SignOut({ className, isIconOnly }: SignOutProps = {}) {
       variant="ghost"
       size={isIconOnly ? 'icon' : 'default'}
       className={clsx(
-        `${isIconOnly ? 'w-full aspect-square' : 'w-full'} hover:bg-cyan-50 hover:text-cyan-600 mb-2`,
+        `${isIconOnly ? 'w-full aspect-square' : 'w-full'} hover:bg-cyan-50 hover:text-cyan-600 mb-2 cursor-pointer`,
         className
       )}
     >

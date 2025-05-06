@@ -14,14 +14,13 @@ export const UserProfile = ({ session }: { session: Session }) => {
 
   return (
     <div
-      className={`border-r bg-gray-50 transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-64'}`}
+      className={`border-r bg-gray-50 transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-80'}`}
     >
       <div className="flex items-center justify-between p-4 border-b">
         <div className={`flex items-center gap-3 ${isSidebarCollapsed ? 'hidden' : 'flex'}`}>
           <UserAvatar session={session} />
           <div className="flex-1">
             <h2 className="text-sm font-semibold text-gray-900 truncate">{session.user?.name}</h2>
-            <p className="text-xs text-gray-500 truncate">{session.user?.email}</p>
           </div>
         </div>
 
@@ -34,7 +33,7 @@ export const UserProfile = ({ session }: { session: Session }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="hover:bg-cyan-50 hover:text-cyan-600 flex justify-center"
+          className="hover:bg-cyan-50 hover:text-cyan-600 flex justify-center cursor-pointer"
           onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
         >
           {isSidebarCollapsed ? (
@@ -49,7 +48,7 @@ export const UserProfile = ({ session }: { session: Session }) => {
         <div className="space-y-4">
           <Button
             variant="ghost"
-            className="w-full justify-start hover:bg-cyan-50 hover:text-cyan-600"
+            className="w-full justify-start hover:bg-cyan-50 hover:text-cyan-600 cursor-pointer"
             onClick={() => setIsProfileOpen(true)}
           >
             <Settings className="h-5 w-5 mr-2" />
@@ -65,7 +64,7 @@ export const UserProfile = ({ session }: { session: Session }) => {
           <Button
             variant="ghost"
             size="icon"
-            className="w-full aspect-square flex justify-center hover:bg-cyan-50 hover:text-cyan-600 mb-2"
+            className="w-full aspect-square flex justify-center hover:bg-cyan-50 hover:text-cyan-600 mb-2 cursor-pointer"
             onClick={() => setIsProfileOpen(true)}
           >
             <Settings className="h-5 w-5" />

@@ -1,4 +1,4 @@
-import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
 import { Group } from './groups';
 import { GenericTableStatusEnum } from './common';
 import { User } from './users';
@@ -16,5 +16,9 @@ export const Tags = pgTable(
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
     status: GenericTableStatusEnum('status').default('active'),
   },
-  (table) => [index('tags_user_id_index').on(table.userId), index('tags_name_index').on(table.name)]
+  (table) => [
+    index('tags_user_id_index').on(table.userId),
+    index('tags_name_index').on(table.name),
+    uniqueIndex('tags_user_name_unique').on(table.userId, table.name),
+  ]
 );

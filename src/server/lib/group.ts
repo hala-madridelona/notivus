@@ -69,7 +69,10 @@ export const fetchGroups = async ({ userId }: { userId: string }) => {
       })
       .from(Group)
       .where(and(eq(Group.userId, userId), eq(Group.status, 'active')))
-      .leftJoin(NoteGroupLink, eq(Group.id, NoteGroupLink.groupId))
+      .leftJoin(
+        NoteGroupLink,
+        and(eq(Group.id, NoteGroupLink.groupId), eq(NoteGroupLink.status, 'active'))
+      )
       .groupBy(Group.id);
 
     if (!groups) {

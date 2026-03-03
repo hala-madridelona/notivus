@@ -9,7 +9,11 @@ import useNoteStore from '@/state/store';
 import { updateNote, updateNoteTimestamp } from '@/server/lib/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Delta } from 'quill';
-import { addNoteToGroup } from '@/server/lib/note-group-link';
+import {
+  addNoteToGroup,
+  findAllTagsInANote,
+  removeNoteLinksForTags,
+} from '@/server/lib/note-group-link';
 
 const extractTitleFromDelta = (delta: Delta) => {
   let title = '';
@@ -106,6 +110,54 @@ export const Editor = () => {
     });
 
     Promise.all(tagPromises);
+
+    (async () => {
+      try {
+        const tags = await findAllTagsInANote({ noteId });
+        console.log('TAGS FROM DB => ', tags);
+        if (!tags || !tags.length) {
+          return;
+        }
+        const stringifiedEditorTags = possibleTags
+          .map((t) => t.toLowerCase())
+          .sort()
+          .join();
+        const stringifiedCurrentTags = tags
+          .map((t) => t?.toLowerCase())
+          .sort()
+          .join();
+
+        if (stringifiedEditorTags !== stringifiedCurrentTags) {
+          // Find tags in db which do not exist in editor
+          const editorTagsSet = new Set(possibleTags);
+          const extraTags = tags.filter((item) => !editorTagsSet.has(item));
+
+          if (!extraTags.length) {
+            return;
+          }
+
+          // These tags need to be removed
+          const result = await removeNoteLinksForTags({ noteId, tags: extraTags });
+
+          const resultSet = new Set(result.map((r) => r.group_id));
+
+          const updatedGroups = groups.map((group) => {
+            if (resultSet.has(group.id)) {
+              queryClient.invalidateQueries({ queryKey: ['fetchNotesInGroup', group.id] });
+              return {
+                ...group,
+                noteCount: group.noteCount - 1,
+              };
+            }
+            return group;
+          });
+
+          updateGroups(updatedGroups);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    })();
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -11,6 +11,7 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import useNoteStore from '@/state/store';
 
 const formSchema = z.object({
   name: z.string().min(1).max(50),
@@ -27,6 +28,8 @@ export const CreateGroupForm = ({
   const userId = session?.user?.id as string;
   const queryClient = useQueryClient();
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const groups = useNoteStore((state) => state.groups);
+  const updateGroups = useNoteStore((state) => state.updateGroups);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,11 +42,19 @@ export const CreateGroupForm = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsActionLoading(true);
-      await createGroupSafe({
+      const result = await createGroupSafe({
         userId,
         name: values.name,
         description: values.description,
       });
+      const updatedGroups = [
+        ...groups,
+        {
+          ...result,
+          noteCount: 0,
+        },
+      ];
+      updateGroups(updatedGroups);
       queryClient.invalidateQueries({ queryKey: ['fetchGroups'] });
       toggleParentModal(false);
     } catch (error) {

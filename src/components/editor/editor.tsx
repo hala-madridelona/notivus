@@ -19,11 +19,9 @@ const extractTitleFromDelta = (delta: Delta) => {
       // There is a newLine
       if (index !== -1) {
         title += operation.insert.substring(0, index);
-        console.log(title);
         break;
       } else {
         title += operation.insert;
-        console.log(title);
       }
     }
   }

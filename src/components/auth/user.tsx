@@ -21,7 +21,7 @@ export default async function User() {
     );
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-hidden">
       <UserProfile session={session} />
 
       <div className="flex flex-col flex-1 h-full">
@@ -35,7 +35,7 @@ export default async function User() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 h-full my-4 overflow-hidden">
           <div className="h-full flex">
             <div className="w-64 border-r p-4 overflow-y-auto">
               <ListNotes session={session} />

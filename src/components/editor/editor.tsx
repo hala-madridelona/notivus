@@ -13,16 +13,20 @@ import { addNoteToGroup } from '@/server/lib/note-group-link';
 
 const extractTitleFromDelta = (delta: Delta) => {
   let title = '';
-  delta['ops'].forEach((operation) => {
+  for (const operation of delta.ops) {
     if (operation.insert != null && typeof operation.insert === 'string') {
       const index = operation.insert.indexOf('\n', 0);
-      if (index != -1) {
-        title = title + operation.insert.substring(0, index);
+      // There is a newLine
+      if (index !== -1) {
+        title += operation.insert.substring(0, index);
+        console.log(title);
+        break;
       } else {
-        title = operation.insert;
+        title += operation.insert;
+        console.log(title);
       }
     }
-  });
+  }
   return title;
 };
 
@@ -194,6 +198,10 @@ export const Editor = () => {
       const oldTitle = extractTitleFromDelta(currentNote?.content);
       const newTitle = extractTitleFromDelta(contentInJson);
 
+      console.log('OLD TITLE => ', oldTitle);
+
+      console.log('NEW TITLE => ', newTitle);
+
       if (newTitle !== oldTitle) {
         debouncedTitleUpdater(currentNote?.id, newTitle, () => {
           updateCurrentNoteTitle(newTitle);
@@ -229,7 +237,7 @@ export const Editor = () => {
   }
 
   return (
-    <div className="h-100 w-200 m-4 border border-zinc-400 rounded-sm">
+    <div className="h-full w-200 m-4 border border-zinc-400 rounded-sm">
       <div ref={quillRef}></div>
     </div>
   );

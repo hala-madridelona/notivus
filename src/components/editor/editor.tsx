@@ -196,10 +196,6 @@ export const Editor = () => {
       const oldTitle = extractTitleFromDelta(currentNote?.content);
       const newTitle = extractTitleFromDelta(contentInJson);
 
-      console.log('OLD TITLE => ', oldTitle);
-
-      console.log('NEW TITLE => ', newTitle);
-
       if (newTitle !== oldTitle) {
         debouncedTitleUpdater(currentNote?.id, newTitle, () => {
           updateCurrentNoteTitle(newTitle);

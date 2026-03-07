@@ -7,6 +7,7 @@ import { Session } from '@auth/core/types';
 import useNoteStore from '@/state/store';
 import clsx from 'clsx';
 import { Button } from '../ui/button';
+import { useEffect } from 'react';
 
 export const ListNotes = ({ session }: { session: Session }) => {
   const { data, error, isLoading } = useQuery({
@@ -24,7 +25,45 @@ export const ListNotes = ({ session }: { session: Session }) => {
   const handleNoteSelect = (note: any) => {
     updateCurrentNote(note);
     updateUserSelection(false);
+    history.pushState(null, '', `#${note.id}`);
   };
+
+  useEffect(() => {
+    if (!data) return;
+
+    const handler = () => {
+      const noteId = window.location.hash.slice(1);
+      if (!noteId) return;
+
+      const note = data.find((item) => item.id === noteId);
+
+      if (!note) {
+        return;
+      }
+
+      if (currentNote?.id === note.id) {
+        return;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateCurrentNote(note as any);
+      updateUserSelection(false);
+    };
+
+    // run once on mount / data load
+    handler();
+
+    const handlerOnListener = () => {
+      console.log('Listener');
+      handler();
+    };
+
+    window.addEventListener('hashchange', handlerOnListener);
+
+    return () => {
+      window.removeEventListener('hashchange', handlerOnListener);
+    };
+  }, [currentNote, data, updateCurrentNote, updateUserSelection]);
 
   const handleNoteDelete = async (noteId: string) => {
     await deleteNote({

@@ -7,7 +7,7 @@ import { Session } from '@auth/core/types';
 import useNoteStore from '@/state/store';
 import clsx from 'clsx';
 import { Button } from '../ui/button';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export const ListNotes = ({ session }: { session: Session }) => {
   const { data, error, isLoading } = useQuery({
@@ -20,6 +20,7 @@ export const ListNotes = ({ session }: { session: Session }) => {
   const currentNote = useNoteStore((state) => state.currentNote);
   const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
+  const currentNoteRef = useRef(currentNote);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleNoteSelect = (note: any) => {
@@ -29,6 +30,10 @@ export const ListNotes = ({ session }: { session: Session }) => {
   };
 
   useEffect(() => {
+    currentNoteRef.current = currentNote;
+  }, [currentNote]);
+
+  useEffect(() => {
     if (!data) return;
 
     const handler = () => {
@@ -36,34 +41,23 @@ export const ListNotes = ({ session }: { session: Session }) => {
       if (!noteId) return;
 
       const note = data.find((item) => item.id === noteId);
+      if (!note) return;
 
-      if (!note) {
-        return;
-      }
-
-      if (currentNote?.id === note.id) {
-        return;
-      }
+      if (currentNoteRef.current?.id === note.id) return;
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updateCurrentNote(note as any);
       updateUserSelection(false);
     };
 
-    // run once on mount / data load
     handler();
 
-    const handlerOnListener = () => {
-      console.log('Listener');
-      handler();
-    };
-
-    window.addEventListener('hashchange', handlerOnListener);
+    window.addEventListener('hashchange', handler);
 
     return () => {
-      window.removeEventListener('hashchange', handlerOnListener);
+      window.removeEventListener('hashchange', handler);
     };
-  }, [currentNote, data, updateCurrentNote, updateUserSelection]);
+  }, [data, updateCurrentNote, updateUserSelection]);
 
   const handleNoteDelete = async (noteId: string) => {
     await deleteNote({

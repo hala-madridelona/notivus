@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import { DrawerDialogDemo } from '../overlays/modal';
 import { GroupSettings } from './group-settings';
 import useNoteStore from '@/state/store';
+import Link from 'next/link';
 
 interface Group {
   id: string;
@@ -136,7 +137,7 @@ export const ListGroups = ({ session }: { session: Session }) => {
                         key={note.noteId}
                         className="cursor-pointer text-sm text-gray-700 transform transition-all duration-300 hover:translate-x-1 hover:text-cyan-600"
                       >
-                        {note.title}
+                        <Link href={`#${note.noteId}`}>{note.title}</Link>
                       </div>
                     ))}
                   </div>

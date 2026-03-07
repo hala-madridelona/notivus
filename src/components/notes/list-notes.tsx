@@ -7,6 +7,7 @@ import { Session } from '@auth/core/types';
 import useNoteStore from '@/state/store';
 import clsx from 'clsx';
 import { Button } from '../ui/button';
+import { useEffect, useRef } from 'react';
 
 export const ListNotes = ({ session }: { session: Session }) => {
   const { data, error, isLoading } = useQuery({
@@ -19,12 +20,44 @@ export const ListNotes = ({ session }: { session: Session }) => {
   const currentNote = useNoteStore((state) => state.currentNote);
   const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
+  const currentNoteRef = useRef(currentNote);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleNoteSelect = (note: any) => {
     updateCurrentNote(note);
     updateUserSelection(false);
+    history.pushState(null, '', `#${note.id}`);
   };
+
+  useEffect(() => {
+    currentNoteRef.current = currentNote;
+  }, [currentNote]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const handler = () => {
+      const noteId = window.location.hash.slice(1);
+      if (!noteId) return;
+
+      const note = data.find((item) => item.id === noteId);
+      if (!note) return;
+
+      if (currentNoteRef.current?.id === note.id) return;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      updateCurrentNote(note as any);
+      updateUserSelection(false);
+    };
+
+    handler();
+
+    window.addEventListener('hashchange', handler);
+
+    return () => {
+      window.removeEventListener('hashchange', handler);
+    };
+  }, [data, updateCurrentNote, updateUserSelection]);
 
   const handleNoteDelete = async (noteId: string) => {
     await deleteNote({

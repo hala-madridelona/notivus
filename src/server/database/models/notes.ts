@@ -1,6 +1,7 @@
 import { uuid, timestamp, varchar, pgTable, index, jsonb } from 'drizzle-orm/pg-core';
 import { User } from './users';
 import { GenericTableStatusEnum } from './common';
+import { InferSelectModel } from 'drizzle-orm';
 
 export const Note = pgTable(
   'notes',
@@ -20,3 +21,5 @@ export const Note = pgTable(
     index('notes_updated_at_index').on(table.updatedAt),
   ]
 );
+
+export type NoteModel = InferSelectModel<typeof Note>;

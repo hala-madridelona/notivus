@@ -1,15 +1,8 @@
 /* eslint-disable */
 // @ts-nocheck
 
+import { NoteModel } from '@/server/database/models/notes';
 import { create } from 'zustand';
-
-interface Note {
-  id: string;
-  title: string;
-  content: any;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 interface Group {
   id: string;
@@ -22,11 +15,19 @@ interface Group {
   noteCount: number;
 }
 
+export interface Note extends Omit<NoteModel, 'status' | 'userId' | 'content'> {
+  content: any;
+}
+
 interface Store {
+  notes: Record<string, Note>;
+  updateNotes: (payload: Record<string, Note>) => any;
+  addNewNote: (payload: Note) => any;
   currentNote: Note | null;
+  currentNoteId: string | null;
   groups: Group[];
   updateGroups: (groups: Group[]) => any;
-  updateCurrentNote: (notePayload: Note) => any;
+  updateCurrentNoteId: (noteId: string) => any;
   updateCurrentNoteContent: (noteContent: any) => any;
   updateCurrentNoteTitle: (noteTitle: any) => any;
   hasUserSelection: boolean;
@@ -34,17 +35,33 @@ interface Store {
 }
 
 const useNoteStore = create<Store>((set) => ({
+  notes: null,
   currentNote: null,
+  currentNoteId: null,
   groups: [],
+  updateNotes: (newState: Record<string, Note>) =>
+    set((state) => ({
+      ...state,
+      notes: newState,
+    })),
+  addNewNote: (newNote: Note) =>
+    set((state) => ({
+      ...state,
+      notes: {
+        ...state.notes,
+        [newNote.id]: newNote,
+      },
+    })),
   updateGroups: (groups: Group[]) =>
     set((state) => ({
       ...state,
       groups: groups,
     })),
-  updateCurrentNote: (notePayload: Note) =>
+  updateCurrentNoteId: (currentNoteId: string) =>
     set((state) => ({
       ...state,
-      currentNote: notePayload,
+      currentNoteId,
+      currentNote: state.notes?.[currentNoteId],
     })),
   updateCurrentNoteContent: (noteContent: any) =>
     set((state) => {

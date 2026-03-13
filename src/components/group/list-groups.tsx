@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Session } from 'next-auth';
 import { ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +10,6 @@ import clsx from 'clsx';
 import { DrawerDialogDemo } from '../overlays/modal';
 import { GroupSettings } from './group-settings';
 import useNoteStore from '@/state/store';
-import Link from 'next/link';
 
 interface Group {
   id: string;
@@ -25,6 +24,7 @@ interface Group {
 
 export const ListGroups = ({ session }: { session: Session }) => {
   const updateGroups = useNoteStore((state) => state.updateGroups);
+  const updateCurrentNoteId = useNoteStore((state) => state.updateCurrentNoteId);
   const groups = useNoteStore((state) => state.groups);
   const [expandedGroupId, setExpandedGroupId] = useState<string | null>(null);
   const [isGroupSettingsOpen, setIsGroupSettingsOpen] = useState<boolean>(false);
@@ -57,6 +57,14 @@ export const ListGroups = ({ session }: { session: Session }) => {
     }
     updateGroups(groupsData as Group[]);
   }, [groupsData, updateGroups]);
+
+  const handleNoteSelect = useCallback(
+    (noteId: string) => {
+      updateCurrentNoteId(noteId);
+      history.pushState(null, '', `#${noteId}`);
+    },
+    [updateCurrentNoteId]
+  );
 
   if (isLoading) {
     return <div className="p-4">Loading groups...</div>;
@@ -137,7 +145,9 @@ export const ListGroups = ({ session }: { session: Session }) => {
                         key={note.noteId}
                         className="cursor-pointer text-sm text-gray-700 transform transition-all duration-300 hover:translate-x-1 hover:text-cyan-600"
                       >
-                        <Link href={`#${note.noteId}`}>{note.title}</Link>
+                        <span onClick={() => handleNoteSelect(note.noteId as string)}>
+                          {note.title}
+                        </span>
                       </div>
                     ))}
                   </div>

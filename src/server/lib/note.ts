@@ -2,10 +2,10 @@
 
 import { throwGracefulError } from '@/utils/error';
 import { and, desc, eq, InferSelectModel } from 'drizzle-orm';
-import { Note } from '../database/models/notes';
+import { Note, NoteModel } from '../database/models/notes';
 import { db } from '../database/connect';
 
-export const fetchAllNotes = async ({ userId }: { userId: string }) => {
+export const fetchAllNotes = async ({ userId }: { userId: string }): Promise<NoteModel[]> => {
   if (!userId) {
     return throwGracefulError(fetchAllNotes.name, 'userId is an empty string');
   }

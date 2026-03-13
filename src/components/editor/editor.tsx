@@ -205,10 +205,6 @@ export const Editor = () => {
 
   useEffect(() => {}, [currentNote, quill]);
 
-  // useEffect(() => {
-  //   console.log('CURRENT NOTE GOT UPDATED');
-  // }, [currentNote])
-
   useEffect(() => {
     if (!currentNote || !quill) {
       return;

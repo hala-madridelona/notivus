@@ -4,7 +4,7 @@ import { deleteNote, fetchAllNotes } from '@/server/lib/note';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Loader, Trash2 } from 'lucide-react';
 import { Session } from '@auth/core/types';
-import useNoteStore from '@/state/store';
+import useNoteStore, { Note } from '@/state/store';
 import clsx from 'clsx';
 import { Button } from '../ui/button';
 import { useEffect, useRef } from 'react';
@@ -17,22 +17,42 @@ export const ListNotes = ({ session }: { session: Session }) => {
   });
   const queryClient = useQueryClient();
 
+  const updateNotes = useNoteStore((state) => state.updateNotes);
   const currentNote = useNoteStore((state) => state.currentNote);
-  const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
+  const updateCurrentNoteId = useNoteStore((state) => state.updateCurrentNoteId);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
   const currentNoteRef = useRef(currentNote);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleNoteSelect = (note: any) => {
-    updateCurrentNote(note);
+    updateCurrentNoteId(note.id);
     updateUserSelection(false);
     history.pushState(null, '', `#${note.id}`);
   };
 
   useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    // Transform notes array into record
+    const noteMap = data.reduce((acc: Record<string, Note>, current: Note) => {
+      if (!acc[current.id]) {
+        acc[current.id] = current;
+      } else {
+        acc[current.id] = current;
+      }
+      return acc;
+    }, {});
+
+    updateNotes(noteMap);
+  }, [data, updateNotes]);
+
+  useEffect(() => {
     currentNoteRef.current = currentNote;
   }, [currentNote]);
 
+  // Url Hash Handler to select current note
   useEffect(() => {
     if (!data) return;
 
@@ -41,12 +61,14 @@ export const ListNotes = ({ session }: { session: Session }) => {
       if (!noteId) return;
 
       const note = data.find((item) => item.id === noteId);
-      if (!note) return;
+      if (!note) {
+        history.replaceState(null, '', window.location.href.split('#')[0]);
+        return;
+      }
 
       if (currentNoteRef.current?.id === note.id) return;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      updateCurrentNote(note as any);
+      updateCurrentNoteId(note?.id);
       updateUserSelection(false);
     };
 
@@ -57,7 +79,7 @@ export const ListNotes = ({ session }: { session: Session }) => {
     return () => {
       window.removeEventListener('hashchange', handler);
     };
-  }, [data, updateCurrentNote, updateUserSelection]);
+  }, [data, updateCurrentNoteId, updateUserSelection]);
 
   const handleNoteDelete = async (noteId: string) => {
     await deleteNote({

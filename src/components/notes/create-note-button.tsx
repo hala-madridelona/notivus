@@ -8,7 +8,8 @@ import { Button } from '../ui/button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export const CreateNewNote = ({ session }: { session: Session }) => {
-  const updateCurrentNote = useNoteStore((state) => state.updateCurrentNote);
+  const addNewNote = useNoteStore((state) => state.addNewNote);
+  const updateCurrentNoteId = useNoteStore((state) => state.updateCurrentNoteId);
   const updateUserSelection = useNoteStore((state) => state.updateUserSelection);
   const queryClient = useQueryClient();
   const createNoteMutataion = useMutation({
@@ -49,13 +50,15 @@ export const CreateNewNote = ({ session }: { session: Session }) => {
       });
 
       const { id, title, createdAt, updatedAt } = newNote;
-      updateCurrentNote({
+      addNewNote({
         id,
         title: title || '',
         content,
         createdAt,
         updatedAt,
       });
+      updateCurrentNoteId(newNote.id);
+      history.pushState(null, '', `#${newNote.id}`);
       updateUserSelection(false);
     } catch (error) {
       console.error(error);

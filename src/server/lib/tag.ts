@@ -4,6 +4,7 @@ import { throwGracefulError } from '@/utils/error';
 import { db } from '../database/connect';
 import { Tags } from '../database/models/tag';
 import { and, eq, InferSelectModel, isNull } from 'drizzle-orm';
+import { prepareTagNameForDb } from './utils';
 
 export const createTag = async ({
   userId,
@@ -23,7 +24,7 @@ export const createTag = async ({
   }
 
   try {
-    const trimmedName = name.trim();
+    const trimmedName = prepareTagNameForDb(name);
     const entryWithName = await db
       .select()
       .from(Tags)
@@ -69,7 +70,7 @@ export const createOrAddTagForGroup = async ({
   }
 
   try {
-    const trimmedName = name.trim();
+    const trimmedName = prepareTagNameForDb(name);
 
     const entryWithName = await db
       .select()

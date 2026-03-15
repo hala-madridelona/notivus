@@ -7,6 +7,7 @@ import { NoteGroupLink } from '../database/models/note-group-link';
 import { Tags } from '../database/models/tag';
 import { and, count, eq, sql } from 'drizzle-orm';
 import { Note } from '../database/models/notes';
+import { prepareTagNameForDb } from './utils';
 
 export const addNoteToGroup = async ({ noteId, tagName }: { noteId: string; tagName: string }) => {
   if (!noteId || !tagName) {
@@ -14,19 +15,20 @@ export const addNoteToGroup = async ({ noteId, tagName }: { noteId: string; tagN
   }
 
   try {
+    const trimmedTagname = prepareTagNameForDb(tagName);
     const tagGroupRelation = await db
       .select({
         groupId: Group.id,
         tagName: Tags.name,
       })
       .from(Tags)
-      .where(eq(Tags.name, tagName))
+      .where(eq(Tags.name, trimmedTagname))
       .leftJoin(Group, eq(Tags.groupId, Group.id));
 
     if (!tagGroupRelation || tagGroupRelation.length === 0) {
       return throwGracefulError(
         addNoteToGroup.name,
-        `Tag not found with the given name: ${tagName}`
+        `Tag not found with the given name: ${trimmedTagname}`
       );
     }
 
